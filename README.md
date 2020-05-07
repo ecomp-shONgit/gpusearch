@@ -29,9 +29,7 @@ On the left hand side there is a vertical oriented normalized version of the sea
 
 # Usage
 
-Currently use the latest Version of python2! First test the if OpenGL related things and the GPU is configured well.
-
-Change to the folder of you extracted the github repository to.
+Currently use the latest Version of python2! Change to the folder of you extracted the github repository to. First test the OpenGL related things and the GPU configuration.
 
 Than run: 
 
