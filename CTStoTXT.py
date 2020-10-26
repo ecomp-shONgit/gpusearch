@@ -1,42 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, codecs, unicodedata, time, hashlib, cPickle, glob, re
+import os, codecs, unicodedata, time, hashlib, pickle, glob, re
 
 '''
-Prof. Charlotte Schubert, Alte Geschichte Leipzig 2017 
-
-The script split CTS like folder structure / any folder structure into a TXT AND INDEXLIST of contained textes, perform text nomalization.
-
-    # GPLv3 copyrigth
-    # This program is free software: you can redistribute it and/or modify
-    # it under the terms of the GNU General Public License as published by
-    # the Free Software Foundation, either version 3 of the License, or
-    # (at your option) any later version.
-    # This program is distributed in the hope that it will be useful,
-    # but WITHOUT ANY WARRANTY; without even the implied warranty of
-    # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    # GNU General Public License for more details.
-    # You should have received a copy of the GNU General Public License
-    # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+KHK 2017 split CTS TO TXT AND INDEXLIST OF THEXTS (which CTS URN belongs to what wordindex), text nomalization
 '''
 
 ###GOBALS
-# files / pathes
-namespace = "15JH"
-inp1 = "/xx/xx/xx/xx/15JH"
-outpp = "TXT15JH"
-    
-namespace2 = "BTL"
-inp2 = "/xx/xx/xx/xx/BTL"
-outpp2 = "TXTBTL"
-
-#screen resolution
-w = 1600
-h = 1000
+w = 2000#1600
+h = 1200#1000
 texsize = w*h
-
-#norm config
 doUVlatin = 1
 
 
@@ -48,6 +22,7 @@ def normword( aword ):
     return ''.join( map( lambda x: x.lower() if (unicodedata.category(x) in 'Mn Cc Cf Cn Co Cs Mc Me Nd No Pc Pl Pd Pf Pi Po Sc Sk Sm So Zl Zs') == False else '' , list( unicodedata.normalize( 'NFD', aword ) ) ) )
 
 def nodiakinword( aword ):
+    #print(unicodedata.normalize( 'NFD', aword ) )
     spt = list( unicodedata.normalize( 'NFD', aword.replace(u"’", "").replace(u"'", "").replace(u"᾽", "").replace(u"´", "") )  )
     
     for l in range(len(spt)):
@@ -122,6 +97,7 @@ def replaceWordsfromarray( arr, strstr ):
         strstr = strstr.replace(arr[a], "")
     return strstr
 
+#re.sub(r'\[(([0-9\.\:\; ]))\]', '', "sicut etiam in Aeneide [499] diximus, 'hoc ile' et")
 def cleanFROMTAGSandmore( stringggg ):
     #processing=man processing=man
     stringggg = stringggg.replace('<foreign xml:lang="greek">', "").replace("</foreign>", "").replace('<s processing="manual">', '').replace("</s>", "").replace('<named-content content-type="non-latin-word" specific-use="greek">', '').replace('<named-content content-type="non-latin-word" specific-use="german">', '').replace('</citn>','').replace('<citn>','').replace('</l>','').replace('<l>','').replace('<hi rend="italic">', '').replace('</hi>', '').replace('</p>','').replace('</div1>','').replace('</div2>','').replace('<line>', '').replace('</line>', '').replace('<named-content content-type="excl">', '').replace('</named-content>', '').replace('&lt;', '').replace('&gt;', '').replace(';', '').replace(':', '').replace(',', '').replace('.', '').replace('?', '').replace('!', '').replace("|", "").replace("\\\\", "").replace("+", "")
@@ -146,18 +122,20 @@ def cleanFROMTAGSandmore( stringggg ):
             
                 secondhalf = ws[w].replace(" ", "")
             else:
-                ca.append( halfw + ws[w].replace("<br/>", "") + " " + secondhalf + "<br/>" ) 
+                #print(halfw, "-",  ws[w], "-", secondhalf, "<br/>")
+                #ca.append( halfw + ws[w].replace(" ", "") + " " + secondhalf + "<br/>" ) #trennstriche
+                ca.append( halfw + ws[w].replace("<br/>", "") + " " + secondhalf + "<br/>" ) #trennstriche
                 halfw = ""
                 secondhalf = ""
         else:
             
-            if( ws[w] != "" ): 
+            if( ws[w] != "" ): #remove mehrfache leerstellen
                 ca.append( ws[w] )
     c = delumbrbine( " ".join( ca ) )
-    cc = c.split(" ") 
+    cc = c.split(" ") #nochmal mehrfache leerzeichen koontrollieren
     goon = True
     l = 0
-    while(goon): 
+    while(goon): #ok das hilft
         if( len(cc[l]) < 1 or cc[l] == " " ):
             cc.pop(l)
         if(len(cc)-1 <= l):
@@ -167,25 +145,30 @@ def cleanFROMTAGSandmore( stringggg ):
     stringggg = " ".join( cc ).replace("-", "").replace("'", "").replace('"', "").replace("<br/>", " ").replace("\n", " ").replace("\t", " ").replace(u"‧","").replace(u"·", "")
     
     #here is some addiional replacing needed
-    stringggg = re.sub( r'\(([A-Za-z0-9\.\:\; ]+|([0-9\.\:\; ]+))\)', '', stringggg ) 
-    stringggg = re.sub( r'\[([0-9\.\:\; ]+)\]', '', stringggg)
+    stringggg = re.sub( r'\(([A-Za-z0-9\.\:\; ]+|([0-9\.\:\; ]+))\)', '', stringggg ) #runde klammern mit zahlen und buchstaben
+    stringggg = re.sub( r'\[([0-9\.\:\; ]+)\]', '', stringggg) #eckige klammern mit nur zahlen
+
+    #stringggg = replaceWordsfromarray( ["in", "cum", "et", "a", "ut"], stringggg )
+    #delete the restlichen klammern
+	
 
     stringggg = replaceOPENINGandCLOSING( '<NOTE', '</NOTE>', stringggg)
     stringggg = replaceOPENINGandCLOSING( '<HEAD', '</HEAD>', stringggg)#?
 
     stringggg = delall( stringggg )
+    #return the shit free version
     return stringggg
 
 
 def sort_nicely( l ):
-    """ Sort the given list in the way that humans expect. - extreamly important
+    """ Sort the given list in the way that humans expect. - extream important
     """
     convert = lambda text: int(text) if text.isdigit() else text
     alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ]
     l.sort( key=alphanum_key )
 
 
-def  CTStoTXT( NS, inparray, outp ): #
+def  CTStoTXT( NS, inparray, outp ): #hier wäre die richtige sortierung der files sehr wichtig, sonst wird das nix!!! - das ist jetzt in der Darstellung fehlerhaft - und auch die suchergebnisse sein fehlerhaft, weil über canonische einheiten hinweg gesucht wird, aber die ja gemixt sind -  sehr schlecht sehr sehr schlecht.
     indexTOctsurn = {}
     ALLTXT = []
     bigI = 0
@@ -198,7 +181,7 @@ def  CTStoTXT( NS, inparray, outp ): #
                 allroots.append(root)
             oldr = root
         sort_nicely( allroots )
-        #so important to get the right sorting --- extrem
+        #so important to get the right sortuing --- extrem
         for rr in allroots:
             fifafiles = os.listdir( rr )
             for name in fifafiles:
@@ -211,13 +194,17 @@ def  CTStoTXT( NS, inparray, outp ): #
                     afh.close() 
                     aDaaA = aDaa.split(" ")
                     for aw in aDaaA:
-                        cleanedword = aw.encode( "utf-8" )
+                        cleanedword = aw.strip().encode( "utf-8" )
                         if( cleanedword != "" and cleanedword != " " ):
                             ALLTXT.append( cleanedword )
                             quiqua = [bigI, p]
                             indexTOctsurn[bigI] = quiqua 
                             bigI += 1
-                    print(p)   
+                    print(p)
+                    #bigI += ( len(aDaaA)-1 )
+                    
+
+   
     try:
         os.mkdir( outp )
     except:
@@ -226,11 +213,17 @@ def  CTStoTXT( NS, inparray, outp ): #
     ofh.write( " ".join( ALLTXT ) )
     ofh.close( )
     o2fh = open( outp+"/"+NS+".index", "wb" )
-    cPickle.dump( indexTOctsurn, o2fh )
+    pickle.dump( indexTOctsurn, o2fh )
     o2fh.close( )
+    #voi = 0
+    #for pkl in indexTOctsurn:
+    #    print(pkl, indexTOctsurn[pkl])
+    #    if(voi > 100):
+    #        break
+    #    voi += 1
 
                 
-def  CTStoTXTbrokentextures( NS, inparray, outp ): #
+def  CTStoTXTbrokentextures( NS, inparray, outp ): #hier wäre die richtige sortierung der files sehr wichtig, sonst wird das nix!!! - das ist jetzt in der Darstellung fehlerhaft - und auch die suchergebnisse sein fehlerhaft, weil über canonische einheiten hinweg gesucht wird, aber die ja gemixt sind -  sehr schlecht sehr sehr schlecht.
     indexTOctsurn = {}
     ALLTXT = []
     bigI = 0
@@ -258,11 +251,12 @@ def  CTStoTXTbrokentextures( NS, inparray, outp ): #
                 allroots.append(root)
             oldr = root
         sort_nicely( allroots )
-        #so important to get the right sorting --- extrem
+        #so important to get the right sortuing --- extrem
         for rr in allroots:
             fifafiles = os.listdir( rr )
             for name in fifafiles:
                 if name.endswith(".xml"):
+                    #print(rr, name)
                     p = "%s/%s" % ( rr,name )
                     
                     afh = codecs.open( p, encoding='utf-8')
@@ -272,7 +266,7 @@ def  CTStoTXTbrokentextures( NS, inparray, outp ): #
                     
                    
                     for aw in aDaaA:
-                        cleanedword = aw.encode( "utf-8" )
+                        cleanedword = aw#.encode( "utf-8" )
                         if( cleanedword != "" and cleanedword != " " ):
                             ALLTXT.append( cleanedword )
                             brokenTXT.append( cleanedword )
@@ -292,8 +286,10 @@ def  CTStoTXTbrokentextures( NS, inparray, outp ): #
                             bigI += 1
                             intratexI += 1
                     print(p)
+                    #bigI += ( len(aDaaA)-1 )
                     
     if(len(brokenTXT) != 0):
+        #write
         bfh = open( bropath+"/"+str(textreI)+"-"+str(intratexI)+".txt", "w" )
         bfh.write( " ".join( brokenTXT ) )
         bfh.close( )
@@ -304,15 +300,21 @@ def  CTStoTXTbrokentextures( NS, inparray, outp ): #
     ofh.write( " ".join( ALLTXT ) )
     ofh.close( )
     o2fh = open( outp+"/"+NS+".index", "wb" )
-    cPickle.dump( indexTOctsurn, o2fh )
+    pickle.dump( indexTOctsurn, o2fh )
     o2fh.close( )
 if __name__ == "__main__":
 
     print("Loosss!!!!")
 
-    
-    CTStoTXT( namespace, [inp1], outpp )
+    #namespace = "15JH"
+    #inp1 = "/srv/http/CTS/CTS/15JH"
+    #outp = "TXT15JH"
+    #CTStoTXT( namespace, [inp1], outp )
 
-    CTStoTXTbrokentextures( namespace2, [inp2], outpp2 )
+    namespace2 = "BTL"
+    inp2 = "/srv/http/CTS/CTS/BTL"
+    outp2 = "TXTBTL"
+    #CTStoTXT( namespace2, [inp2, inp1], outp2 )
+    CTStoTXTbrokentextures( namespace2, [inp2], outp2 )
     
     print("Ennddd!!!!")
