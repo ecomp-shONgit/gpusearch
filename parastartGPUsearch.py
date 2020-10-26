@@ -13,8 +13,8 @@ def sort_nicely( l ):
     l.sort( key=alphanum_key )
 
 def runrara( atexindex, lwindex, texpath ):
-    print( "python2 3gpusearch.py "+atexindex+" "+lwindex+" "+texpath )
-    os.system("python2 3gpusearch.py "+atexindex+" "+lwindex+" "+texpath)
+    print( "python3 3gpusearch.py "+atexindex+" "+lwindex+" "+texpath )
+    os.system("python3 3gpusearch.py "+atexindex+" "+lwindex+" "+texpath)
     #os.system("ls -la")
     
 
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     #3. conf 3gpusearch.py
     #4. run parastratGPUsearch.py
     #5. conf+run check.py
-    inpath = "OUTenc/brokentextures"
+    inpath = "OUTenc/brokentextures" #such basis
     fifafiles = os.listdir( inpath )
     sort_nicely( fifafiles )
     texindex = 0
