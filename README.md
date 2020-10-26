@@ -29,11 +29,11 @@ On the left hand side there is a vertical oriented normalized version of the sea
 
 # Usage
 
-Currently use the latest Version of python2! Change to the folder of you extracted the github repository to. First test the OpenGL related things and the GPU configuration.
+Currently use the latest Version of python3! Change to the folder of you extracted the github repository to. First test the OpenGL related things and the GPU configuration.
 
 Than run: 
 
-*python2 tesstpyopengl.py*
+*python3 tesstpyopengl.py*
 
 Add dependences and try again.
 
@@ -53,7 +53,7 @@ w = 1600
 h = 1000
 ```
 
-Than run *python2 CTStoTXT.py*.
+Than run *python3 CTStoTXT.py*.
 
 Open *TXTencode.py* script and configure it (main section of script).
 
@@ -66,7 +66,7 @@ OUTenc = "OUTenc" #directory of encrypted base text
 alleFragen = "alleFragen" #directory of encrypted search text -- do not touch this
 ```
 
-Than run *python2 TXTencode.py*.
+Than run *python3 TXTencode.py*.
 
 Open *3gpusearch.py* for configuration. Go to GLOBALS comment and set screen resolution, for example:
 
@@ -75,7 +75,7 @@ w = 1600
 h = 1000
 ```
 
-Than run *python2 parastartGPUsearch.py*.
+Than run *python3 parastartGPUsearch.py*.
 
 Open *check.py* for configuration. Go to GLOBALS comment and set the following:
 
@@ -92,14 +92,16 @@ ib = "TXTBTL/BTL.index" #path of index of base text
 af = "alleFragen/allefragen.txt" #path of search text (split)
 ```
 
-Than run *python2 check.py*.
+Than run *python3 check.py*.
 
 Done.
 
 
 # Future Work
 
-- Shift to a different programming language and python3 version.
+- Use the OpenGL FBO / PBO! 
+
+- Shift to a different programming language.
 
 - Implement more string distances.
 
