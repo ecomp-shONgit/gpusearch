@@ -4,32 +4,18 @@
 import os, codecs, unicodedata, time, hashlib, pickle
 
 '''
-Prof. Charlotte Schubert, Alte Geschichte Leipzig 2017 
-
-Script reads TXT build from CTS/folder structure -- encodes it to int for gpu search.
-
-    # GPLv3 copyrigth
-    # This program is free software: you can redistribute it and/or modify
-    # it under the terms of the GNU General Public License as published by
-    # the Free Software Foundation, either version 3 of the License, or
-    # (at your option) any later version.
-    # This program is distributed in the hope that it will be useful,
-    # but WITHOUT ANY WARRANTY; without even the implied warranty of
-    # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    # GNU General Public License for more details.
-    # You should have received a copy of the GNU General Public License
-    # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+KHK 2017 reads TXT build from CTS -- encodes it in int for gpu search
 '''
 
 
 if __name__ == "__main__":
     print("Loosss!!!!")
-    INfage = "TXT15JH/15JH.txt"
+    INfage = "TXTBTL/BTL.txt"#"TXT15JH/15JH.txt"
     INantwort = "TXTBTL/BTL.txt"
     INantwBase = "TXTBTL"
     INconcon = "AFconcon"
     OUTenc = "OUTenc"
-    alleFragen = "alleFragen" #better do not touch this - path often used in other scripts
+    alleFragen = "alleFragen"
     #lesen
     afh1 = open( INfage, "r" )
     F = afh1.read().split(" ")
@@ -62,7 +48,7 @@ if __name__ == "__main__":
         #write codebook
         pickle.dump( codebook, open( INconcon+"/codebook.txt", "wb" ) )
         #print("Greek", (len(aslist)/countgreek)*100, countgreek, len(aslist))
-    except Exception, e:
+    except Exception as e:
         print(e)
         #read codebook
         codebook = pickle.load( open( INconcon+"/codebook.txt", "rb" ) )
@@ -118,7 +104,7 @@ if __name__ == "__main__":
 
     lenencAfortexturecalc = len(encA)
     print("enc A fertig, Buffersize needed: ", lenencAfortexturecalc)
-    maxtexwidth = 1600
+    maxtexwidth = 2000#1600
     while( lenencAfortexturecalc % maxtexwidth  != 0 and maxtexwidth != 0):
         #print(lenencAfortexturecalc % maxtexwidth, maxtexwidth) 
         maxtexwidth-=1
@@ -129,7 +115,7 @@ if __name__ == "__main__":
         currfra = " ".join( encF[wi:wi+5] )
         try:
             allefragen[ currfra ].append( wi )
-        except Exception, e:
+        except Exception as e:
             allefragen[ currfra ] = [ wi ]
 
     pickle.dump( allefragen, open( alleFragen+"/allefragen.txt", "wb" ) )
